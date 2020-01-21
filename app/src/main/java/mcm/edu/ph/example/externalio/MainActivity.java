@@ -11,7 +11,7 @@ import android.widget.Toast;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Button;
-
+import android.os.Environment;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -20,13 +20,14 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        final EditText txtbox =findViewById(R.id.txtbox);
-        final Button buttonclr=findViewById(R.id.buttonclr);
-        final Button buttonrd=findViewById(R.id.buttonrd);
-        final Button buttonwrt=findViewById(R.id.buttonwrt);
+        final EditText txtbox = findViewById(R.id.txtbox);
+        final Button buttonclr = findViewById(R.id.buttonclr);
+        final Button buttonrd = findViewById(R.id.buttonrd);
+        final Button buttonwrt = findViewById(R.id.buttonwrt);
 
         buttonclr.setOnClickListener(
                 new View.OnClickListener() {
@@ -41,17 +42,17 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
                         try {
-                            FileInputStream fileIn=openFileInput("mytextfile.txt");
-                            InputStreamReader InputRead= new InputStreamReader(fileIn);
+                            FileInputStream fileIn = openFileInput("mytextfile.txt");
+                            InputStreamReader InputRead = new InputStreamReader(fileIn);
 
-                            char[] inputBuffer= new char[READ_BLOCK_SIZE];
-                            String s="";
+                            char[] inputBuffer = new char[READ_BLOCK_SIZE];
+                            String s = "";
                             int charRead;
 
-                            while ((charRead=InputRead.read(inputBuffer))>0) {
+                            while ((charRead = InputRead.read(inputBuffer)) > 0) {
                                 // char to string conversion
-                                String readstring=String.copyValueOf(inputBuffer,0,charRead);
-                                s +=readstring;
+                                String readstring = String.copyValueOf(inputBuffer, 0, charRead);
+                                s += readstring;
                             }
                             InputRead.close();
                             txtbox.setText(s);
@@ -68,8 +69,8 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
                         try {
-                            FileOutputStream fileout=openFileOutput("mytextfile.txt", MODE_PRIVATE);
-                            OutputStreamWriter outputWriter=new OutputStreamWriter(fileout);
+                            FileOutputStream fileout = openFileOutput("mytextfile.txt", MODE_PRIVATE);
+                            OutputStreamWriter outputWriter = new OutputStreamWriter(fileout);
                             outputWriter.write(txtbox.getText().toString());
                             outputWriter.close();
 
@@ -84,5 +85,25 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
         );
+        if (!isExternalStorageAvailable() || isExternalStorageReadOnly()) {
+            buttonwrt.setEnabled(false);
+        }
+
+    }
+        private static boolean isExternalStorageReadOnly() {
+            String extStorageState = Environment.getExternalStorageState();
+            if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(extStorageState)) {
+                return true;
+            }
+            return false;
+        }
+
+        private static boolean isExternalStorageAvailable() {
+            String extStorageState = Environment.getExternalStorageState();
+            if (Environment.MEDIA_MOUNTED.equals(extStorageState)) {
+                return true;
+            }
+            return false;
+        }
     }
 }
